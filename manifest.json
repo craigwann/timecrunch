@@ -1,0 +1,11 @@
+{
+  "name": "cIDE",
+  "description": "A packaged IDE for Chrome",
+  "version": "0.1",
+  "app": {
+    "background": {
+      "scripts": ["js/background.js"]
+    }
+  },
+  "icons": { "16": "images/calculator-16.png", "128": "images/calculator-128.png" }
+}
