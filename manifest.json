@@ -1,6 +1,6 @@
 {
-  "name": "cIDE",
-  "description": "A packaged IDE for Chrome",
+  "name": "TimeCrunch",
+  "description": "A simple time keeper",
   "version": "0.1",
   "app": {
     "background": {
