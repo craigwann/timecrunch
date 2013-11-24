@@ -71,9 +71,9 @@ p {
 }
 header {
     background-color: darkorange;
-    padding: 10px;
+    padding: 0 10px 0 10px;
+    line-height: 50px;
     color: white;
-    line-height: 26px;
 }
 section, aside {
     padding-top: 26pz;
@@ -105,9 +105,41 @@ aside {
 }
 .controls {
     float: right;
-    width: 50%;
     box-sizing: border-box;
     text-align: right;
+    display:inline;
+    border-radius: 5px;
+}
+.controls button {
+    display: inline;
+    padding:2px 5px 4px 5px;
+    border: 0px;
+    background-color:black;
+    color: white;
+    background-color: rgba(0,0,0,0.20);
+    margin: -4px;
+    font-size:18px;
+}
+
+#controls_button_right {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+#controls_button_left {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.controls input {
+    background-color: rgba(0,0,0,0.10);
+    border: none;
+    padding: 5px 0 5px 0;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    font-family: RobotoSlab;
+    width: 150px;
 }
 #clock {
     font-family: RobotoSlab;
@@ -115,7 +147,7 @@ aside {
     font-size: 80px;
     margin: 15px 0 15px 0;
 }    
-button {
+section button {
     line-height: 2em;
     border-radius: 5px;
     border: 0px;
@@ -133,7 +165,7 @@ button.button_pos {
 button.button_neg {
     background-color: darkslategray;
 }
-input {
+aside input {
     width: 45%;
     line-height: 2em;
     background-color: rgba(0,0,0,0.15);
@@ -143,7 +175,7 @@ input {
     text-align: center;
     font-size: .75em;
 }
-label {
+aside label {
     font-size: .5em;
     width: 5px;
     word-break:break-all;
