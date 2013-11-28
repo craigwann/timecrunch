@@ -240,3 +240,9 @@ div.timesheet td:first-child {
 div.timesheet td:last-child {
     border-right: none;
 }
+
+div.timesheet form input {
+    width: 100%;
+    box-sizing: border-box;
+    display:block;
+}
