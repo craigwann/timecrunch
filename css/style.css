@@ -231,6 +231,7 @@ div.timesheet td {
     border-bottom: dotted 1px lightgrey;
     border-right: dotted 1px lightgray;
     padding: 5px;
+    vertical-align: middle;
 }
 
 div.timesheet td:first-child {

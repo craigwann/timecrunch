@@ -39,40 +39,39 @@ var timesheet = new Class ({
             table.adopt(tr);
             var td = new Element('td');
             tr.adopt(td);
-            var input = new Element('input',{
+            var input1 = new Element('input',{
                 title: 'Date',
                 type: 'text',
                 'class': 'overtext'
             });
-            new OverText(input, { positionOptions: {
-			offset: {
-				x: 8,
-				y: 8
-			}
-                    }
-                });
-            td.adopt(input,{
+            td.adopt(input1);
+            var td = new Element('td');
+            tr.adopt(td);
+            var input2 = new Element('input',{
                 title: 'Clock In',
-                type: 'text'
+                type: 'text',
+                'class': 'overtext'
             });
+            td.adopt(input2);
             var td = new Element('td');
             tr.adopt(td);
-            var input = new Element('input',{
+            var input3 = new Element('input',{
                 title: 'Clock Out',
-                type: 'text'
+                type: 'text',
+                'class': 'overtext'
             });
-            td.adopt(input);
-            var td = new Element('td');
-            tr.adopt(td);
-            var input = new Element('input');
-            new OverText(input);
-            td.adopt(input);
+            td.adopt(input3);
             var td = new Element('td', {
                 'class': 'total',
                 html: '0:00'
             });
             tr.adopt(td);
             form.inject(item);
+            
+            new OverText(input1);
+            new OverText(input2);
+            new OverText(input3);
+            
 	},
 	del: function() {
 	
