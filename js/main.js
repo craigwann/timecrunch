@@ -29,7 +29,6 @@ var timesheet = new Class ({
 	},
 
 	draw_entry_form: function(item) {
-            // Creating an new anchor with an Object
             var form = new Element('form', {
                 action: '#'
             });
@@ -70,8 +69,7 @@ var timesheet = new Class ({
             
             new OverText(input1);
             new OverText(input2);
-            new OverText(input3);
-            
+            new OverText(input3); 
 	},
 	del: function() {
 	
