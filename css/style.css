@@ -81,13 +81,12 @@ p {
 }
 header {
     background-color: darkorange;
-    padding: 0 10px 0 10px;
-    line-height: 50px;
+    padding: 0 20px 0 20px;
+    line-height: 30px;
     color: white;
-    text-shadow: rgba(0,0,0,0.5) -1px 0, rgba(0,0,0,0.3) 0 -1px, rgba(255,255,255,0.5) 0 1px, rgba(0,0,0,0.3) -1px -2px;
 }
 section, aside {
-    padding-top: 26pz;
+    padding-top: 26px;
 }
 section {
     width: 100%;
@@ -100,16 +99,16 @@ article {
     margin-bottom: 15px;
 }
 .logo {
-    font-size: 26px;
+    font-size: 18px;
     width: 50%;
     float: left;
+    text-shadow: rgba(0,0,0,0.5) -1px 0, rgba(0,0,0,0.3) 0 -1px, rgba(255,255,255,0.5) 0 1px, rgba(0,0,0,0.3) -1px -2px;
 }
 .controls {
     float: right;
     box-sizing: border-box;
     text-align: right;
     display:inline;
-    border-radius: 5px;
 }
 .controls button {
     display: inline;
@@ -120,18 +119,8 @@ article {
     background-color: rgba(0,0,0,0.20);
     margin: -4px;
     font-size:18px;
+    height: 100%;
 }
-
-#controls_button_right {
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-}
-
-#controls_button_left {
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-}
-
 .controls input {
     background-color: rgba(0,0,0,0.10);
     border: none;
@@ -141,6 +130,12 @@ article {
     font-weight: bold;
     font-family: RobotoSlab;
     width: 150px;
+    height: 100%;
+}
+
+.controls label {
+    width: 130px;
+    line-height: 24px !important;
 }
 #clock {
     font-family: RobotoSlab;
@@ -246,4 +241,9 @@ div.timesheet form input {
     width: 100%;
     box-sizing: border-box;
     display:block;
+    font-size: .8em;
+}
+
+div.timesheet form label {
+    font-size: .8em;
 }
