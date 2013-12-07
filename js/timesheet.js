@@ -1,96 +1,67 @@
-var timesheet = new Class ({
-    Implements: Options,
+var timesheet = function(process_content, item){
+    var process_entry = function(item) {
+        $('header').css("background-color:red");
+    };
     
-    current_month: null,
-    storage: 'chrome.storage.sync',
-
-    options: {
-        content_processor: null
-    },
+    var draw_entry_form = function(item) {
+        var form = document.createElement('form');
+        var table = document.createElement('table');
+        form.appendChild(table);
+        var tr = document.createElement('tr');
+        table.appendChild(tr);
+        
+        var td = document.createElement('td');
+        tr.appendChild(td);
+        var input = document.createElement('input');
+        input.setAttribute('name','date');
+        input.setAttribute('type','text');
+        input.setAttribute('class','date');
+        input.setAttribute('placeholder','Date');
+        td.appendChild(input);
+        
+        var td = document.createElement('td');
+        tr.appendChild(td);
+        var input = document.createElement('input');
+        input.setAttribute('name','in');
+        input.setAttribute('type','text');
+        input.setAttribute('class','time');
+        input.setAttribute('placeholder','Start Time');
+        td.appendChild(input);
+        
+        var td = document.createElement('td');
+        tr.appendChild(td);
+        var input = document.createElement('input');
+        input.setAttribute('name','out');
+        input.setAttribute('type','text');
+        input.setAttribute('class','time');
+        input.setAttribute('placeholder','End Time');
+        td.appendChild(input);
+        
+        var td = document.createElement('td');
+        var node = document.createTextNode('0.00');
+        td.appendChild(node);
+        td.setAttribute('class','total');
+        tr.appendChild(td);
+        item.appendChild(form);
+    };
     
+    var current_month = null;
+    var entries = [];
 
-    initialize: function(item,op) {
-        this.setOptions(op);
-        var entries = [];
-        
-        var date = new Date();
-        this.current_month = date.get('year') + '_' +  date.get('month');
-        
-        //no enries
-        if(!entries[0]){
-           this.draw_entry_form(item); 
-        }
-        
-        item.getElements('input').each(function(el){
-            el.addEvent('change',function(e){
-                this.process_entry(item);
-            }.bind(this));
-        }.bind(this));
-        
-        //item.input.each.addEvent('change', function(){
-        //    alert('clicked!');
-        //});
-        
-        this.options.content_processor(item);
-    },
+    var date = new Date();
+    this.current_month = date.getFullYear + '_' +  date.getMonth;
 
-    draw_entry_form: function(item) {
-        var form = new Element('form', {
-            action: '#'
-        });
-        var table = new Element('table');
-        form.adopt(table);
-        var tr = new Element('tr');
-        table.adopt(tr);
-        var td = new Element('td');
-        tr.adopt(td);
-        var input = new Element('input',{
-            title: 'Date',
-            type: 'text',
-            'class': 'overtext date'
-        });
-        td.adopt(input);
-        var td = new Element('td');
-        tr.adopt(td);
-        var input = new Element('input',{
-            title: 'Clock In',
-            type: 'text',
-            'class': 'overtext time'
-        });
-        td.adopt(input);
-        var td = new Element('td');
-        tr.adopt(td);
-        var input = new Element('input',{
-            title: 'Clock Out',
-            type: 'text',
-            'class': 'overtext time'
-        });
-        td.adopt(input);
-        var td = new Element('td', {
-            'class': 'total',
-            html: '0:00'
-        });
-        tr.adopt(td);
-        form.inject(item);
-    },
-            
-    process_entry: function(item) {
-        //Check to see if the inputs are filled in
-        var inputs = item.getElements('input');
-        if ((inputs[0].value) && (inputs[1].value) && (inputs[2].value)) {
-            var date = inputs[0].value;
-            var start = inputs[1].value;
-            var end = inputs[2].value;
-            
-            // Save it using the Chrome extension storage API.
-            var current_month = new Object;
-            current_month[this.current_month] = JSON.encode({'d': date, 's': start, 'e': end});
-            
-            chrome.storage.sync.set(current_month, function() {
-                chrome.storage.sync.get(this.current_month, function(items) {
-                    console.log(JSON.encode(items));
-                });
-            });
-        }
+    //no enries
+    if(!entries[0]){
+      draw_entry_form(item); 
     }
-});
+    //\\//End Functions\\//\\
+    
+    $(item).children('input').each(function(i, el){
+        $(el).live('change',function(ev) {
+            process_entry(this);
+        });
+    });
+    
+    process_content(item);
+};

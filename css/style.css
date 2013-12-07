@@ -143,7 +143,7 @@ article {
     font-size: 80px;
     margin: 15px 0 15px 0;
 }    
-section button {
+section button.button {
     line-height: 2em;
     border-radius: 5px;
     border: 0px;

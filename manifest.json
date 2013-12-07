@@ -10,5 +10,8 @@
   "icons": { "16": "images/calculator-16.png", "128": "images/calculator-128.png" },
   "permissions": [
     "storage"
-  ]
+  ],
+  "sandbox": {
+    "pages": ["main.html"]
+  }
 }
