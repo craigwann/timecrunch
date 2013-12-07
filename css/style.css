@@ -80,7 +80,7 @@ p {
     font-style: italic;
 }
 header {
-    background-color: darkorange;
+    background-color: #0089ec;
     padding: 0 20px 0 20px;
     line-height: 30px;
     color: white;
@@ -156,7 +156,7 @@ section button.button {
     inset 0 1px 1px rgba(255,255,255,0.8); /*top internal highlight*/
 }
 button.button_pos {
-    background-color: darkorange;
+    background-color: #0089ec;
 }
 button.button_neg {
     background-color: rgba(0,0,0,.6);
@@ -172,7 +172,7 @@ aside input {
     line-height: 2em;
     background-color: rgba(0,0,0,0.15);
     border: 0px;
-    border-bottom: solid 1px darkorange;
+    border-bottom: solid 1px #0089ec;
     color: white;
     text-align: center;
     font-size: .75em;

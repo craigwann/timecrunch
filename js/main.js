@@ -19,7 +19,10 @@ $( document ).ready(function() {
         });
         
         $(item).find(".time").each(function(i, el) {
-             $(el).pickatime();
+             $(el).pickatime({
+                 'interval': 15,
+                 'edatable': true
+             });
         });
 
         //Functions

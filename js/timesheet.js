@@ -1,6 +1,42 @@
 var timesheet = function(process_content, item){
+    var current_month = null;
+    var storage = 'chrome.storage.sync';
+    var entries = [];
+    var date = new Date();
+    var current_month = date.getFullYear + '_' +  date.getMonth;
+        
+    var init = function(item) {        
+        //no enries
+        if(!entries[0]){
+          draw_entry_form(item); 
+        }
+
+        $(item).find('input').each(function(i, el){
+            $(el).change(function() {
+                process_entry(item);
+            });
+        });
+    }
+    
     var process_entry = function(item) {
-        $('header').css("background-color:red");
+        var inputs = $(item).children('input');
+        
+        if (($(inputs[0]).val != '') && ($(inputs[1]).val != '') && ($(inputs[2]).val != '')) {
+            var date = $(inputs[0]).val;
+            var start = $(inputs[1]).val;
+            var end = $(inputs[2]).val;
+            
+            
+            // Save it using the Chrome extension storage API.
+            //var month = new Object;
+            //month[current_month] = JSON.encode({'d': date, 's': start, 'e': end});
+            
+            //chrome.storage.sync.set(current_month, function() {
+            //    chrome.storage.sync.get(this.current_month, function(items) {
+            //        console.log(JSON.encode(items));
+            //    });
+            //});
+        }
     };
     
     var draw_entry_form = function(item) {
@@ -44,24 +80,7 @@ var timesheet = function(process_content, item){
         tr.appendChild(td);
         item.appendChild(form);
     };
-    
-    var current_month = null;
-    var entries = [];
 
-    var date = new Date();
-    this.current_month = date.getFullYear + '_' +  date.getMonth;
-
-    //no enries
-    if(!entries[0]){
-      draw_entry_form(item); 
-    }
-    //\\//End Functions\\//\\
-    
-    $(item).children('input').each(function(i, el){
-        $(el).live('change',function(ev) {
-            process_entry(this);
-        });
-    });
-    
+    init(item);
     process_content(item);
 };
