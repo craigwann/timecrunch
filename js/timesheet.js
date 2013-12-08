@@ -18,12 +18,12 @@ var timesheet = function(process_content, item){
         
             if (r[current_month]) {
                 if(!r[current_month][current_week]){
-                    entry(item, null, null); 
+                    draw_entry_form(item, null, null); 
                 } else {
                     draw_entries(item, r[current_month][current_week]);
                 }
             } else {
-                entry(item, null, null);
+                draw_entry_form(item, null, null);
             }
         });
     };
@@ -101,7 +101,6 @@ var timesheet = function(process_content, item){
     };
     
     var draw_entry_form = function(item, key, month_obj) {
-        console.log(month_obj);
         if ($('form').length) {
             //So we can change between add/edit forms.
             $('form').remove();
