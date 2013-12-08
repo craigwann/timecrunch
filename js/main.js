@@ -15,13 +15,22 @@ $( document ).ready(function() {
         });
         
         $(item).find(".date").each(function(i, el) {
-             $(el).pickadate();
+             $(el).pickadate({
+                //For some reason the value isn't being set onSet automatically.
+                onSet: function(event) {
+                    $(el).val(this.get());
+                }
+             });
         });
         
         $(item).find(".time").each(function(i, el) {
              $(el).pickatime({
                  'interval': 15,
-                 'edatable': true
+                 'edatable': true,
+                 //For some reason the value isn't being set onSet automatically.
+                 onSet: function(event) {
+                    $(el).val(this.get());
+                }
              });
         });
 

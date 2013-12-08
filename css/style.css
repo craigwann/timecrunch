@@ -247,3 +247,8 @@ div.timesheet form input {
 div.timesheet form label {
     font-size: .8em;
 }
+
+div.timesheet img.icon {
+    padding: 0 2px 0 2px;
+    cursor: pointer;
+}
