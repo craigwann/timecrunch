@@ -252,3 +252,35 @@ div.timesheet img.icon {
     padding: 0 2px 0 2px;
     cursor: pointer;
 }
+
+div.arrow_left, div.arrow_right {
+    width: 8%;
+    height: 485px;
+    position: fixed;
+    top: 110px;
+}
+div.arrow_left{
+    left: 0px;
+    background-image:url('../images/arrow_left.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+div.arrow_right{
+    right: 0px;
+    background-image:url('../images/arrow_right.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+div.arrow_left:hover{
+    background-image:url('../images/arrow_left_over.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+  
+div.arrow_right:hover{
+    background-image:url('../images/arrow_right_over.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+}

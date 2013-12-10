@@ -1,31 +1,78 @@
 var timesheet = function(process_content, item){
-    var current_month = null;
-    var entries = [];
-    var date = new Date();
-    var current_date = date;
-    var current_week = date.last().sunday().toString('MM_d_yyyy');
-    var current_month = date.getFullYear() + '_' + date.getMonth();
+    var current_date;
+    var current_week;
+    var current_month;
+    var current_display_date;
+    
+    var init = function(item) {
+        draw_nav();
         
-    var init = function(item) {  
         chrome.storage.sync.get(current_month.toString(), function(r) {
-        
-            var date = new Date(current_date);
-            var display_date = date.toString("MMMM d ") + ' - ' + date.next().saturday().toString("MMMM d yyyy");
             var h1 = document.createElement('h1');
             var node = document.createTextNode(display_date);
             h1.appendChild(node);
             item.appendChild(h1);
-        
             if (r[current_month]) {
                 if(!r[current_month][current_week]){
                     draw_entry_form(item, null, null); 
                 } else {
+                    if (is_empty(r[current_month][current_week])) {
+                        //Just to be safe, lets make sure the week object isn't empty
+                        delete r[current_month][current_week];
+                        chrome.storage.sync.set(r, function() {
+                            date = new Date();
+                            set_current_date(date);
+                            refresh_timesheet();
+                        });
+                    }
                     draw_entries(item, r[current_month][current_week]);
                 }
             } else {
                 draw_entry_form(item, null, null);
             }
         });
+    };
+    
+    var set_current_date = function(date) {
+        current_date = date;
+        //Sunday?
+        if (date.getDay() === 0) {
+            current_week = date.toString('MM_d_yyyy');
+        } else {
+            current_week = date.last().sunday().toString('MM_d_yyyy');
+        }
+        current_month = date.getFullYear() + '_' + date.getMonth();
+        display_date = date.toString("MMMM d ") + ' - ' + date.next().saturday().toString("MMMM d yyyy");
+    };
+    
+    function is_empty(obj) {
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop))
+                return false;
+        }
+        return true;
+    }
+    
+    var draw_nav = function () {
+        var arrow_right = document.createElement('div');
+            arrow_right.setAttribute('class','arrow_right');
+            item.appendChild(arrow_right);
+            $(arrow_right).click(function(el) {
+                date = new Date(current_date);
+                date.setDate(date.getDate() + 7);
+                set_current_date(date);
+                refresh_timesheet(); 
+            });
+
+            var arrow_left = document.createElement('div');
+            arrow_left.setAttribute('class','arrow_left');
+            item.appendChild(arrow_left);
+            $(arrow_left).click(function(el) {
+                date = new Date(current_date);
+                date.setDate(date.getDate() - 7);
+                set_current_date(date);
+                refresh_timesheet(); 
+            });
     };
     
     var draw_entries = function(item, week_obj) {
@@ -101,7 +148,7 @@ var timesheet = function(process_content, item){
     };
     
     var draw_entry_form = function(item, key, month_obj) {
-        if ($('form').length) {
+        if ($('form')) {
             //So we can change between add/edit forms.
             $('form').remove();
         }
@@ -166,6 +213,12 @@ var timesheet = function(process_content, item){
     var delete_entry = function(id) {
         chrome.storage.sync.get(current_month.toString(), function(r) {
             delete r[current_month][current_week][id];
+            //Delete the week if it's empty, and go to current date
+            if (is_empty(r[current_month][current_week])) {
+                delete r[current_month][current_week];
+                date = new Date();
+                set_current_date(date);
+            }
             chrome.storage.sync.set(r, function() {
                 chrome.storage.sync.get(current_month.toString(), function(r) {
                     refresh_timesheet(item);
@@ -242,6 +295,8 @@ var timesheet = function(process_content, item){
                     }
                 }
                 chrome.storage.sync.set(month, function() {
+                    //Jump to week of entry date
+                    set_current_date(date);
                     refresh_timesheet(item);
                 });
             });
@@ -253,6 +308,8 @@ var timesheet = function(process_content, item){
         init(item);
     };
 
+    var date = new Date();
+    set_current_date(date);
     init(item);
     process_content(item);
 };
