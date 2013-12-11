@@ -237,6 +237,10 @@ div.timesheet td:last-child {
     border-right: none;
 }
 
+div.timesheet tfoot td{
+    border: none;
+}
+
 div.timesheet form input {
     width: 100%;
     box-sizing: border-box;

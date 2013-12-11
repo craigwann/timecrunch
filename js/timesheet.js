@@ -8,6 +8,7 @@ var timesheet = function(process_content, item){
         draw_nav();
         
         chrome.storage.sync.get(current_month.toString(), function(r) {
+            console.log(r);
             var h1 = document.createElement('h1');
             var node = document.createTextNode(display_date);
             h1.appendChild(node);
@@ -77,7 +78,7 @@ var timesheet = function(process_content, item){
     
     var draw_entries = function(item, week_obj) {
         var table = document.createElement('table');
-        $.each(week_obj, function(key, entry_obj) {
+        $.each(week_obj, function(key, entry_obj, total) {
             draw_entry(table, key, entry_obj);
         });
         item.appendChild(table);
@@ -101,9 +102,15 @@ var timesheet = function(process_content, item){
         var node = document.createTextNode(entry_obj['e']);
         td.appendChild(node);
         tr.appendChild(td);
-
+        
+        var s_date = new Date(entry_obj['d'] + ' ' + entry_obj['s']).getTime();
+        var e_date = new Date(entry_obj['d'] + ' ' + entry_obj['e']).getTime();
+        var difference = e_date - s_date;
+        var hours = Math.floor(difference / 36e5),
+            minutes = Math.floor(difference % 36e5 / 60000);
+    
         var td = document.createElement('td');
-        var node = document.createTextNode('0.00');
+        var node = document.createTextNode(hours + ':' + minutes);
         td.appendChild(node);
         tr.appendChild(td);
 
