@@ -105,12 +105,10 @@ var timesheet = function(process_content, item){
         
         var s_date = new Date(entry_obj['d'] + ' ' + entry_obj['s']).getTime();
         var e_date = new Date(entry_obj['d'] + ' ' + entry_obj['e']).getTime();
-        var difference = e_date - s_date;
-        var hours = Math.floor(difference / 36e5),
-            minutes = Math.floor(difference % 36e5 / 60000);
+        var time_diff = get_time_difference(s_date, e_date);
     
         var td = document.createElement('td');
-        var node = document.createTextNode(hours + ':' + minutes);
+        var node = document.createTextNode(time_diff.hours + ':' + time_diff.minutes);
         td.appendChild(node);
         tr.appendChild(td);
 
@@ -148,6 +146,19 @@ var timesheet = function(process_content, item){
         tr.appendChild(td);
     };
     
+    var get_time_difference = function (from, to) {
+        if (to >= from ) {
+            var difference = to - from;
+        } else {
+            var difference = from - to;
+        }
+        var diff = {
+            hours: Math.floor(difference / 36e5),
+            minutes: Math.floor(difference % 36e5 / 60000)
+        };
+        return diff;
+    } 
+    
     var edit_entry = function(item, key) {
         chrome.storage.sync.get(current_month.toString(), function(r) {
             draw_entry_form(item, key, r);
@@ -168,44 +179,74 @@ var timesheet = function(process_content, item){
 
         var td = document.createElement('td');
         tr.appendChild(td);
-        var input = document.createElement('input');
-        input.setAttribute('name','date');
-        input.setAttribute('type','text');
-        input.setAttribute('class','date');
-        input.setAttribute('placeholder','Date');
+        var d = document.createElement('input');
+        d.setAttribute('name','date');
+        d.setAttribute('type','text');
+        d.setAttribute('class','date');
+        d.setAttribute('placeholder','Date');
         if (key) {
-            $(input).val(month_obj[current_month][current_week][key]['d']);
+            $(d).val(month_obj[current_month][current_week][key]['d']);
         }
-        td.appendChild(input);
+        td.appendChild(d);
 
         var td = document.createElement('td');
         tr.appendChild(td);
-        var input = document.createElement('input');
-        input.setAttribute('name','in');
-        input.setAttribute('type','text');
-        input.setAttribute('class','time');
-        input.setAttribute('placeholder','Start Time');
+        var s = document.createElement('input');
+        s.setAttribute('name','in');
+        s.setAttribute('type','text');
+        s.setAttribute('class','time');
+        s.setAttribute('placeholder','Start Time');
         if (key) {
-            $(input).val(month_obj[current_month][current_week][key]['s']);
+            $(s).val(month_obj[current_month][current_week][key]['s']);
         }
-        td.appendChild(input);
+        td.appendChild(s);
 
         var td = document.createElement('td');
         tr.appendChild(td);
-        var input = document.createElement('input');
-        input.setAttribute('name','out');
-        input.setAttribute('type','text');
-        input.setAttribute('class','time');
-        input.setAttribute('placeholder','End Time');
+        var e = document.createElement('input');
+        e.setAttribute('name','out');
+        e.setAttribute('type','text');
+        e.setAttribute('class','time');
+        e.setAttribute('placeholder','End Time');
         if (key) {
-            $(input).val(month_obj[current_month][current_week][key]['e']);
+            $(e).val(month_obj[current_month][current_week][key]['e']);
         }
-        td.appendChild(input);
-
+        td.appendChild(e);
         var td = document.createElement('td');
-        var node = document.createTextNode('0.00');
-        td.appendChild(node);
-        td.setAttribute('class','total');
+        
+        var set_diff = function() {
+            if ((!input_empty(d)) && (!input_empty(s))) {
+                var s_date = new Date($(d).val() + ' ' + $(s).val()).getTime();
+                if (input_empty(e)) {
+                    var e_date = new Date().getTime();
+                } else {
+                    var e_date = new Date($(d).val() + ' ' + $(e).val()).getTime();
+                }
+                var time_diff = get_time_difference(s_date, e_date);
+                if (time_diff.hours >= 24) {
+                    $(td).html('0:00');
+                } else {
+                    if (time_diff.minutes < 10) {
+                        time_diff.minutes = '0' + time_diff.minutes;
+                    } 
+                    $(td).html(time_diff.hours + ':' + time_diff.minutes);
+                }
+            } else {
+                $(td).html('0:00');
+            }
+        };
+        
+        $(s).change(function(el) {
+            set_diff();
+        });
+        $(e).change(function(el) {
+            set_diff();
+        });
+        set_diff();
+        setInterval(function(){
+                set_diff();
+        },60000);
+        
         tr.appendChild(td);
         item.appendChild(form);
 
