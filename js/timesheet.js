@@ -34,14 +34,19 @@ var timesheet = function(process_content, item){
         });
     };
     
+    var get_week_start = function(date) {
+        if (date.getDay() === 0) {
+            week_start = date.toString('MM_d_yyyy');
+        } else {
+            week_start = date.last().sunday().toString('MM_d_yyyy');
+        }
+        return week_start;
+    }
+    
     var set_current_date = function(date) {
         current_date = date;
         //Sunday?
-        if (date.getDay() === 0) {
-            current_week = date.toString('MM_d_yyyy');
-        } else {
-            current_week = date.last().sunday().toString('MM_d_yyyy');
-        }
+        current_week = get_week_start(date);
         current_month = date.getFullYear() + '_' + date.getMonth();
         display_date = date.toString("MMMM d ") + ' - ' + date.next().saturday().toString("MMMM d yyyy");
     };
@@ -268,6 +273,10 @@ var timesheet = function(process_content, item){
                 set_current_date(date);
             }
             chrome.storage.sync.set(r, function() {
+                var n = noty({
+                    text: "Entry deleted.",
+                    timeout: 5000
+                });
                 chrome.storage.sync.get(current_month.toString(), function(r) {
                     refresh_timesheet(item);
                 });
@@ -318,9 +327,11 @@ var timesheet = function(process_content, item){
         var entry_month = date.getFullYear() + '_' + date.getMonth();
         var entry_week = date.last().sunday().toString('MM_d_yyyy');
         var entry_sub = {'d': entry_date, 's': entry_start, 'e': entry_end};
-        
-        if (!key) {
+        if (key) {
+            var action = 'edit';
+        } else {
             key = generate_id();
+            var action = 'add';
         }
             
         if ((!input_empty(inputs[0])) && (!input_empty(inputs[1])) && (!input_empty(inputs[2]))) {
@@ -344,7 +355,18 @@ var timesheet = function(process_content, item){
                 }
                 chrome.storage.sync.set(month, function() {
                     //Jump to week of entry date
-                    set_current_date(date);
+                    if (get_week_start(date) != get_week_start(current_date)) {
+                        var n = noty({
+                            text: "You've " + action + "ed" + " an entry to a different week than you were viewing. Moving to the week of your entry.",
+                            timeout: 5000
+                        });
+                        set_current_date(date);
+                    } else {
+                        var n = noty({
+                            text: 'Entry ' + action + 'ed',
+                            timeout: 5000
+                        });
+                    }
                     refresh_timesheet(item);
                 });
             });
