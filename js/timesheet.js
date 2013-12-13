@@ -1,38 +1,65 @@
 var timesheet = function(process_content, item){
+    var clock_in_btn_id = '#clock_in';
+    var clock_out_btn_id = '#clock_out';
     var current_date;
     var current_week;
     var current_month;
     var current_display_date;
     
-    var init = function(item) {
+    var init = function(item, def) {
         draw_nav();
         
         chrome.storage.sync.get(current_month.toString(), function(r) {
-            console.log(r);
             var h1 = document.createElement('h1');
             var node = document.createTextNode(display_date);
             h1.appendChild(node);
             item.appendChild(h1);
-            if (r[current_month]) {
-                if(!r[current_month][current_week]){
-                    draw_entry_form(item, null, null); 
-                } else {
-                    if (is_empty(r[current_month][current_week])) {
-                        //Just to be safe, lets make sure the week object isn't empty
-                        delete r[current_month][current_week];
-                        chrome.storage.sync.set(r, function() {
-                            date = new Date();
-                            set_current_date(date);
-                            refresh_timesheet();
-                        });
-                    }
-                    draw_entries(item, r[current_month][current_week]);
+            if (r[current_month] && r[current_month][current_week]) {
+                if (is_empty(r[current_month][current_week])) {
+                    //Just to be safe, lets make sure the week object isn't empty
+                    delete r[current_month][current_week];
+                    chrome.storage.sync.set(r, function() {
+                        date = new Date();
+                        set_current_date(date);
+                        refresh_timesheet();
+                    });
                 }
-            } else {
-                draw_entry_form(item, null, null);
+                draw_entries(item, r[current_month][current_week]);
             }
+            draw_entry_form(item, null, null, def);
         });
     };
+    
+    var activate_in_out_btns = function() {
+        $(clock_in_btn_id).click(function(el) {
+            var date = new Date();
+            set_current_date(date);
+            var def = {
+                d: date.toString('d MMMM, yyyy'),
+                s: date.toString('h:mm tt')
+            };
+            refresh_timesheet(def);
+            var n = noty({
+                text: "Clocked in",
+                timeout: 5000
+            });
+         });
+         
+         $(clock_out_btn_id).click(function(el) {
+            var date = new Date();
+            if (input_empty($("input[name='in']"))) {
+                var n = noty({
+                    text: "You aren't clocked in",
+                    timeout: 5000,
+                    type: 'error'
+                });
+            } else {
+                var time = date.toString('h:mm tt');
+                $("input[name='out']").val(time);
+                $("input[name='out']").trigger('change');
+            }
+         });
+    }
     
     var get_week_start = function(date) {
         if (date.getDay() === 0) {
@@ -111,7 +138,10 @@ var timesheet = function(process_content, item){
         var s_date = new Date(entry_obj['d'] + ' ' + entry_obj['s']).getTime();
         var e_date = new Date(entry_obj['d'] + ' ' + entry_obj['e']).getTime();
         var time_diff = get_time_difference(s_date, e_date);
-    
+        if (time_diff.minutes < 10) {
+            time_diff.minutes = '0' + time_diff.minutes;
+        }
+  
         var td = document.createElement('td');
         var node = document.createTextNode(time_diff.hours + ':' + time_diff.minutes);
         td.appendChild(node);
@@ -137,17 +167,6 @@ var timesheet = function(process_content, item){
             edit_entry(item, key); 
         });
         td.appendChild(img);
-
-        var img = document.createElement('img');
-        img.setAttribute('class', 'icon add');
-        img.setAttribute('src', 'images/paperplus32.png');
-        img.setAttribute('rel', key);
-        img.setAttribute('width', 15);
-        $(img).click(function(el) {
-            draw_entry_form(item, null); 
-        });
-        td.appendChild(img);
-
         tr.appendChild(td);
     };
     
@@ -170,7 +189,7 @@ var timesheet = function(process_content, item){
         });
     };
     
-    var draw_entry_form = function(item, key, month_obj) {
+    var draw_entry_form = function(item, key, month_obj, def) {
         if ($('form')) {
             //So we can change between add/edit forms.
             $('form').remove();
@@ -189,7 +208,9 @@ var timesheet = function(process_content, item){
         d.setAttribute('type','text');
         d.setAttribute('class','date');
         d.setAttribute('placeholder','Date');
-        if (key) {
+        if (def && def['d']) {
+            $(d).val(def['d']);
+        } else if (key) {
             $(d).val(month_obj[current_month][current_week][key]['d']);
         }
         td.appendChild(d);
@@ -201,7 +222,9 @@ var timesheet = function(process_content, item){
         s.setAttribute('type','text');
         s.setAttribute('class','time');
         s.setAttribute('placeholder','Start Time');
-        if (key) {
+        if (def && def['s']) {
+            $(s).val(def['s']);
+        } else if (key) {
             $(s).val(month_obj[current_month][current_week][key]['s']);
         }
         td.appendChild(s);
@@ -356,8 +379,12 @@ var timesheet = function(process_content, item){
                 chrome.storage.sync.set(month, function() {
                     //Jump to week of entry date
                     if (get_week_start(date) != get_week_start(current_date)) {
+                        var a = action;
+                        if (action === 'edit') {
+                            a = 'mov'
+                        };
                         var n = noty({
-                            text: "You've " + action + "ed" + " an entry to a different week than you were viewing. Moving to the week of your entry.",
+                            text: "You've " + a + "ed" + " an entry to a different week than you were viewing. Moving to the week of your entry.",
                             timeout: 5000
                         });
                         set_current_date(date);
@@ -373,13 +400,14 @@ var timesheet = function(process_content, item){
         }
     };
     
-    var refresh_timesheet = function() {
+    var refresh_timesheet = function(def) {
         $(item).html('');
-        init(item);
+        init(item, def);
     };
 
     var date = new Date();
     set_current_date(date);
     init(item);
+    activate_in_out_btns();
     process_content(item);
 };
