@@ -11,8 +11,7 @@ var timesheet = function(process_content, item){
         
         chrome.storage.sync.get(current_month.toString(), function(r) {
             var h1 = document.createElement('h1');
-            var node = document.createTextNode(display_date);
-            h1.appendChild(node);
+            $(h1).html(display_date);
             item.appendChild(h1);
             if (r[current_month] && r[current_month][current_week]) {
                 if (is_empty(r[current_month][current_week])) {
@@ -24,10 +23,30 @@ var timesheet = function(process_content, item){
                         refresh_timesheet();
                     });
                 }
+                var total = get_total(r[current_month][current_week]);
                 draw_entries(item, r[current_month][current_week]);
             }
             draw_entry_form(item, null, null, def);
+            if (total) {
+                var div = document.createElement('div');
+                div.setAttribute('class','total');
+                if (total.minutes < 10) {
+                    total.minutes = '0' + total.minutes;
+                }
+                $(div).html(total['hours'] + ':' + total['minutes']);
+                item.appendChild(div);
+            }
         });
+    };
+    
+    var get_total = function(week_obj) {
+        var total = 0;
+        $.each(week_obj, function(key, entry_obj) {
+            var s = new Date(entry_obj['d'] + ' ' + entry_obj['s']);
+            var e = new Date(entry_obj['d'] + ' ' + entry_obj['e']);
+            total = get_date_difference(s, e) + total;
+        });
+        return diff_as_time(total);
     };
     
     var activate_in_out_btns = function() {
@@ -110,7 +129,7 @@ var timesheet = function(process_content, item){
     
     var draw_entries = function(item, week_obj) {
         var table = document.createElement('table');
-        $.each(week_obj, function(key, entry_obj, total) {
+        $.each(week_obj, function(key, entry_obj) {
             draw_entry(table, key, entry_obj);
         });
         item.appendChild(table);
@@ -171,17 +190,26 @@ var timesheet = function(process_content, item){
     };
     
     var get_time_difference = function (from, to) {
+        var difference = get_date_difference(from, to);
+        return diff_as_time(difference);
+    };
+    
+    var get_date_difference = function (from, to) {
         if (to >= from ) {
             var difference = to - from;
         } else {
             var difference = from - to;
         }
+        return difference;
+    };
+    
+    var diff_as_time = function(difference) {
         var diff = {
             hours: Math.floor(difference / 36e5),
             minutes: Math.floor(difference % 36e5 / 60000)
         };
         return diff;
-    } 
+    };
     
     var edit_entry = function(item, key) {
         chrome.storage.sync.get(current_month.toString(), function(r) {
@@ -276,7 +304,11 @@ var timesheet = function(process_content, item){
         },60000);
         
         tr.appendChild(td);
-        item.appendChild(form);
+        if ($('.total').length) {
+            $(form).insertBefore($('.total'));
+        } else {
+            item.appendChild(form);
+        }
 
         $(item).find('input').each(function(i, el){
             $(el).change(function(el) {
@@ -348,7 +380,7 @@ var timesheet = function(process_content, item){
         var entry_end = $(inputs[2]).val();
         var date = new Date(entry_date);
         var entry_month = date.getFullYear() + '_' + date.getMonth();
-        var entry_week = date.last().sunday().toString('MM_d_yyyy');
+        var entry_week = get_week_start(date);
         var entry_sub = {'d': entry_date, 's': entry_start, 'e': entry_end};
         if (key) {
             var action = 'edit';

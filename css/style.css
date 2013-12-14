@@ -155,6 +155,7 @@ section button.button {
     box-shadow: 
     inset 0 -1px 1px rgba(0,0,0,0.5), /*bottom internal shadow*/ 
     inset 0 1px 1px rgba(255,255,255,0.8); /*top internal highlight*/
+    cursor: pointer;
 }
 button.button_pos {
     background-color: #0089ec;
@@ -288,4 +289,12 @@ div.arrow_right:hover{
     background-image:url('../images/arrow_right_over.png');
     background-position: center center;
     background-repeat: no-repeat;
+}
+
+div.total {
+    text-align: right;
+    border-bottom: dotted 1px lightgrey;
+    padding: 5px;
+    font-weight: bold;
+    font-family: RobotoSlab;
 }
