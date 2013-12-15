@@ -53,3 +53,17 @@
   font-weight: bold;
   src: local('RobotoSlab'), url('fonts/Roboto_Slab/RobotoSlab-BoldItalic.ttf') format('truetype');
 }
+
+@font-face {
+  font-family: 'Digital';
+  font-style: normal;
+  font-weight: normal;
+  src: local('RobotoSlab'), url('fonts/Digital/DS-DIGI.TTF') format('truetype');
+}
+
+@font-face {
+  font-family: 'Digital';
+  font-style: normal;
+  font-weight: bold;
+  src: local('RobotoSlab'), url('fonts/Digital/DS-DIGIB.TTF') format('truetype');
+}

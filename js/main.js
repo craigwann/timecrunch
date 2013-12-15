@@ -9,6 +9,12 @@ $( document ).ready(function() {
         $(item).find(".timesheet").each(function(i, el) {
             timesheet(process_content, this);
         });
+        
+        $(item).find(".excel_gen").each(function(i, el) {
+            excel_gen(this, {
+                table: 'timesheet'
+            });
+        });
 
         $(item).find("input[placeholder]").each(function(i, el) {
              $(el).inputHints();

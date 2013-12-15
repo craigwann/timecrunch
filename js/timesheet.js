@@ -404,6 +404,14 @@ var timesheet = function(process_content, item){
                         var entry = entry_obj(key, entry_sub);
                         month[entry_month][entry_week] = entry;
                     } else {
+                        if (Object.keys(r[entry_month][entry_week]).length >= 14) {
+                            var n = noty({
+                                text: "Due to storage limits, only 14 entries are allowed for each week. Sorry!",
+                                timeout: 5000,
+                                type: 'error'
+                            });
+                            return;
+                        }
                         //existing week - overwrite or add entry
                         month[entry_month][entry_week][key] = entry_sub;
                     }

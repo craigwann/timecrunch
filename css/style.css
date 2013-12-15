@@ -60,7 +60,13 @@ html, body {
     font-size: 14px;
     min-width: 540px;
 }
-header, h1, h2, h3, h4, h5 {
+header {
+    font-family: Digital;
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+
+h1, h2, h3, h4, h5 {
     font-family: RobotoSlab;
     font-weight: bold;
     margin-bottom: 1em;
@@ -148,7 +154,8 @@ section button.button {
     line-height: 2em;
     border-radius: 5px;
     border: 0px;
-    font-family: RobotoSlab;
+    font-family: Roboto;
+    font-weight: bold;
     color: white;
     font-size: 14px;
     padding: 0 15px 0 15px;
