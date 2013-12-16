@@ -3,28 +3,27 @@ var timesheet = function(process_content, item){
     var clock_out_btn_id = '#clock_out';
     var current_date;
     var current_week;
-    var current_month;
+    var current_period;
     var current_display_date;
     
     var init = function(item, def) {
         draw_nav();
-        
-        chrome.storage.sync.get(current_month.toString(), function(r) {
+        chrome.storage.sync.get(current_period, function(r) {
             var h1 = document.createElement('h1');
             $(h1).html(display_date);
             item.appendChild(h1);
-            if (r[current_month] && r[current_month][current_week]) {
-                if (is_empty(r[current_month][current_week])) {
+            if (r[current_period] && r[current_period][current_week]) {
+                if (is_empty(r[current_period][current_week])) {
                     //Just to be safe, lets make sure the week object isn't empty
-                    delete r[current_month][current_week];
+                    delete r[current_period][current_week];
                     chrome.storage.sync.set(r, function() {
                         date = new Date();
                         set_current_date(date);
                         refresh_timesheet();
                     });
                 }
-                var total = get_total(r[current_month][current_week]);
-                draw_entries(item, r[current_month][current_week]);
+                var total = get_total(r[current_period][current_week]);
+                draw_entries(item, r[current_period][current_week]);
             }
             draw_entry_form(item, null, null, def);
             if (total) {
@@ -84,16 +83,25 @@ var timesheet = function(process_content, item){
         if (date.getDay() === 0) {
             week_start = date.toString('MM_d_yyyy');
         } else {
-            week_start = date.last().sunday().toString('MM_d_yyyy');
+            date = date.last().sunday();
+            week_start = date.toString('MM_d_yyyy');
         }
-        return week_start;
+        return {
+            date: date,
+            string: week_start
+        };
     }
     
     var set_current_date = function(date) {
         current_date = date;
         //Sunday?
-        current_week = get_week_start(date);
-        current_month = date.getFullYear() + '_' + date.getMonth();
+        var current_week_start = get_week_start(date);
+        current_week = current_week_start['string'];
+        var current_week_obj = new Date(current_week);
+        current_period = date.getFullYear() + '_' + date.getMonth();
+        if(current_week_start['date'].toString('d') >= 15) {
+            current_period = current_period + '_2';
+        }
         display_date = date.toString("MMMM d ") + ' - ' + date.next().saturday().toString("MMMM d yyyy");
     };
     
@@ -212,12 +220,12 @@ var timesheet = function(process_content, item){
     };
     
     var edit_entry = function(item, key) {
-        chrome.storage.sync.get(current_month.toString(), function(r) {
+        chrome.storage.sync.get(current_period.toString(), function(r) {
             draw_entry_form(item, key, r);
         });
     };
     
-    var draw_entry_form = function(item, key, month_obj, def) {
+    var draw_entry_form = function(item, key, period_obj, def) {
         if ($('form')) {
             //So we can change between add/edit forms.
             $('form').remove();
@@ -239,7 +247,7 @@ var timesheet = function(process_content, item){
         if (def && def['d']) {
             $(d).val(def['d']);
         } else if (key) {
-            $(d).val(month_obj[current_month][current_week][key]['d']);
+            $(d).val(period_obj[current_period][current_week][key]['d']);
         }
         td.appendChild(d);
 
@@ -253,7 +261,7 @@ var timesheet = function(process_content, item){
         if (def && def['s']) {
             $(s).val(def['s']);
         } else if (key) {
-            $(s).val(month_obj[current_month][current_week][key]['s']);
+            $(s).val(period_obj[current_period][current_week][key]['s']);
         }
         td.appendChild(s);
 
@@ -265,7 +273,7 @@ var timesheet = function(process_content, item){
         e.setAttribute('class','time');
         e.setAttribute('placeholder','End Time');
         if (key) {
-            $(e).val(month_obj[current_month][current_week][key]['e']);
+            $(e).val(period_obj[current_period][current_week][key]['e']);
         }
         td.appendChild(e);
         var td = document.createElement('td');
@@ -319,11 +327,11 @@ var timesheet = function(process_content, item){
     };
     
     var delete_entry = function(id) {
-        chrome.storage.sync.get(current_month.toString(), function(r) {
-            delete r[current_month][current_week][id];
+        chrome.storage.sync.get(current_period.toString(), function(r) {
+            delete r[current_period][current_week][id];
             //Delete the week if it's empty, and go to current date
-            if (is_empty(r[current_month][current_week])) {
-                delete r[current_month][current_week];
+            if (is_empty(r[current_period][current_week])) {
+                delete r[current_period][current_week];
                 date = new Date();
                 set_current_date(date);
             }
@@ -332,7 +340,7 @@ var timesheet = function(process_content, item){
                     text: "Entry deleted.",
                     timeout: 5000
                 });
-                chrome.storage.sync.get(current_month.toString(), function(r) {
+                chrome.storage.sync.get(current_period.toString(), function(r) {
                     refresh_timesheet(item);
                 });
             });
@@ -354,9 +362,9 @@ var timesheet = function(process_content, item){
         return Math.round(new Date().getTime() + (Math.random() * 100));
     };
     
-    var month_obj = function(month, week_obj) {
+    var period_obj = function(period, week_obj) {
          var obj = {};
-         obj[month] = week_obj;
+         obj[period] = week_obj;
          return obj;
     };
     
@@ -379,8 +387,12 @@ var timesheet = function(process_content, item){
         var entry_start = $(inputs[1]).val();
         var entry_end = $(inputs[2]).val();
         var date = new Date(entry_date);
-        var entry_month = date.getFullYear() + '_' + date.getMonth();
-        var entry_week = get_week_start(date);
+        var entry_week_start = get_week_start(date);
+        var entry_week = entry_week_start['string'];
+        var entry_period = date.getFullYear() + '_' + date.getMonth();
+        if(entry_week_start['date'].toString('d') >= 15) {
+            entry_period = entry_period + '_2';
+        }
         var entry_sub = {'d': entry_date, 's': entry_start, 'e': entry_end};
         if (key) {
             var action = 'edit';
@@ -388,23 +400,23 @@ var timesheet = function(process_content, item){
             key = generate_id();
             var action = 'add';
         }
-            
+
         if ((!input_empty(inputs[0])) && (!input_empty(inputs[1])) && (!input_empty(inputs[2]))) {
-            chrome.storage.sync.get(current_month.toString(), function(r) {
-                if(!r[entry_month]){
-                    //If new month - all new
+            chrome.storage.sync.get(entry_period, function(r) {
+                if(!r[entry_period]){
+                    //If new period - all new
                     var entry = entry_obj(generate_id(), entry_sub);
                     var week = week_obj(entry_week, entry);
-                    var month = month_obj(entry_month, week);
+                    var period = period_obj(entry_period, week);
                 } else {
-                    //existing month 
-                    var month = r;
-                    if (!r[entry_month][entry_week]) {
-                        //new week - add to month
+                    //existing period 
+                    var period = r;
+                    if (!r[entry_period][entry_week]) {
+                        //new week - add to period
                         var entry = entry_obj(key, entry_sub);
-                        month[entry_month][entry_week] = entry;
+                        period[entry_period][entry_week] = entry;
                     } else {
-                        if (Object.keys(r[entry_month][entry_week]).length >= 14) {
+                        if (Object.keys(r[entry_period][entry_week]).length >= 14) {
                             var n = noty({
                                 text: "Due to storage limits, only 14 entries are allowed for each week. Sorry!",
                                 timeout: 5000,
@@ -413,12 +425,12 @@ var timesheet = function(process_content, item){
                             return;
                         }
                         //existing week - overwrite or add entry
-                        month[entry_month][entry_week][key] = entry_sub;
+                        period[entry_period][entry_week][key] = entry_sub;
                     }
                 }
-                chrome.storage.sync.set(month, function() {
+                chrome.storage.sync.set(period, function() {
                     //Jump to week of entry date
-                    if (get_week_start(date) != get_week_start(current_date)) {
+                    if (get_week_start(date)['string'] != get_week_start(current_date)['string']) {
                         var a = action;
                         if (action === 'edit') {
                             a = 'mov'
